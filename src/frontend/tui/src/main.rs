@@ -3,14 +3,7 @@ mod models;
 mod ui;
 
 use crate::app::App;
-use color_eyre::{
-    eyre::WrapErr,
-    Result,
-};
-use ratatui::{
-    style::Stylize,
-    widgets::Widget,
-};
+use color_eyre::Result;
 
 fn main() -> Result<()> {
     color_eyre::install()?;

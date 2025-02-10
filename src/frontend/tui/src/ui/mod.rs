@@ -1,26 +1,34 @@
-mod navbar;
-mod footer;
-mod main_content;
+mod components;
 
 use crate::app::App;
-use crate::ui::footer::footer;
-use crate::ui::main_content::main_content;
-use ratatui::style::Stylize;
 use ratatui::{layout::{Constraint, Direction, Layout}, Frame};
+use ratatui::layout::Rect;
+use crate::models::screen::Screen;
+use crate::ui::components::chat::chat;
+use crate::ui::components::footer::footer;
+use crate::ui::components::friends::friends;
+use crate::ui::components::header::header;
+use crate::ui::components::profile::profile;
 
-pub fn ui(frame: &mut Frame, app: &App) {
+pub fn ui(app: &App, frame: &mut Frame) {
     let layout = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
+            Constraint::Length(3), // header
             Constraint::Min(0), // main content
             Constraint::Length(3), // footer
         ])
         .split(frame.area());
 
-    let main_content = main_content(app);
-    let footer = footer(app);
+    header(app, frame, layout[0]);
+    main_content(app, frame, layout[1]);
+    footer(app, frame, layout[2]);
+}
 
-    // render components
-    frame.render_widget(main_content, layout[0]);
-    frame.render_widget(footer, layout[1]);
+fn main_content(app: &App, frame: &mut Frame, rect: Rect) {
+    match app.screen {
+        Screen::Profile => profile(app, frame, rect),
+        Screen::Chat => chat(app, frame, rect),
+        Screen::Friends => friends(app, frame, rect)
+    };
 }

@@ -1,5 +1,7 @@
+use crate::models::Id;
+
 pub struct User {
-    pub id: String,
+    pub id: Id,
     pub username: String,
     pub display_name: String,
 }

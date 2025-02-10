@@ -2,23 +2,23 @@
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Screen {
     Profile,
-    Servers,
+    Chat,
     Friends,
 }
 
 impl Screen {
     pub fn next(self) -> Self {
         match self {
-            Screen::Profile => Screen::Servers,
-            Screen::Servers => Screen::Friends,
+            Screen::Profile => Screen::Chat,
+            Screen::Chat => Screen::Friends,
             Screen::Friends => Screen::Friends,
         }
     }
 
     pub fn previous(self) -> Self {
         match self {
-            Screen::Friends => Screen::Servers,
-            Screen::Servers => Screen::Profile,
+            Screen::Friends => Screen::Chat,
+            Screen::Chat => Screen::Profile,
             Screen::Profile => Screen::Profile
         }
     }
@@ -26,7 +26,7 @@ impl Screen {
     pub fn all() -> Vec<Self> {
         vec![
             Screen::Profile,
-            Screen::Servers,
+            Screen::Chat,
             Screen::Friends,
         ]
     }
@@ -34,7 +34,7 @@ impl Screen {
     pub fn as_str(self) -> &'static str {
         match self {
             Screen::Profile => "Profile",
-            Screen::Servers => "Servers",
+            Screen::Chat => "Chat",
             Screen::Friends => "Friends",
         }
     }

@@ -1,9 +1,8 @@
-use crate::models::channel::Channel;
-use crate::models::user::User;
+use crate::models::Id;
 
 pub struct Server {
-    pub id: String,
+    pub id: Id,
     pub name: String,
-    pub channels: Vec<Channel>,
-    pub members: Vec<User>,
+    pub channels: Vec<Id>,
+    pub members: Vec<Id>,
 }

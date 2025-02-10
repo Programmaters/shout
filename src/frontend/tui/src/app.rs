@@ -2,6 +2,8 @@ use color_eyre::eyre::{WrapErr};
 use color_eyre::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::{DefaultTerminal, Frame};
+use crate::models::channel::Channel;
+use crate::models::message::Message;
 use crate::models::screen::Screen;
 use crate::models::server::Server;
 use crate::models::user::User;
@@ -11,16 +13,38 @@ pub struct App {
     pub running: bool,
     pub screen: Screen,
     pub logged_user: Option<User>,
-    pub server: Option<Server>,
+    pub server_selected: Option<Server>,
+    pub channel_selected: Option<Channel>,
 }
 
 impl App {
     pub fn new() -> Self {
         App {
             running: true,
-            screen: Screen::Servers,
-            logged_user: None,
-            server: None
+            screen: Screen::Chat,
+            logged_user: Some(User {
+                id: "123".to_string(),
+                username: "rcosta".to_string(),
+                display_name: "Ricardo Costa".to_string(),
+            }),
+            server_selected: Some(Server {
+                id: "234".to_string(),
+                name: "Server".to_string(),
+                channels: vec!["345".to_string()],
+                members: vec!["123".to_string(), "321".to_string()],
+            }),
+            channel_selected: Some(Channel {
+                id: "345".to_string(),
+                name: "chat".to_string(),
+                messages: vec![
+                    Message {
+                        id: "xyz".to_string(),
+                        sender: "rcosta".to_string(),
+                        timestamp: "Today at 14:55".to_string(),
+                        content: "hello world!".to_string(),
+                    }
+                ],
+            }),
         }
     }
 
@@ -33,7 +57,7 @@ impl App {
     }
 
     fn draw(&self, frame: &mut Frame) {
-        ui(frame, self);
+        ui(self, frame);
     }
 
     fn handle_events(&mut self) -> Result<()> {
