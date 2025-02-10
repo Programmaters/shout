@@ -9,7 +9,7 @@ pub fn footer(_app: &App, frame: &mut Frame, rect: Rect) {
         Span::raw("Switch Screen: "),
         Span::styled("Ctrl+←/→", Style::default().fg(Color::Cyan)),
         Span::raw(" | Quit: "),
-        Span::styled("Ctrl+C", Style::default().fg(Color::Yellow)),
+        Span::styled("Esc", Style::default().fg(Color::Yellow)),
     ]);
     let paragraph = Paragraph::new(help_text)
         .alignment(Alignment::Center)

@@ -1,3 +1,4 @@
+use chrono::Utc;
 use color_eyre::eyre::{WrapErr};
 use color_eyre::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
@@ -12,6 +13,7 @@ use crate::ui::ui;
 pub struct App {
     pub running: bool,
     pub screen: Screen,
+    pub input_box: String,
     pub logged_user: Option<User>,
     pub server_selected: Option<Server>,
     pub channel_selected: Option<Channel>,
@@ -22,10 +24,11 @@ impl App {
         App {
             running: true,
             screen: Screen::Chat,
+            input_box: "".to_string(),
             logged_user: Some(User {
                 id: "123".to_string(),
-                username: "rcosta".to_string(),
-                display_name: "Ricardo Costa".to_string(),
+                username: "me".to_string(),
+                display_name: "Me".to_string(),
             }),
             server_selected: Some(Server {
                 id: "234".to_string(),
@@ -36,14 +39,7 @@ impl App {
             channel_selected: Some(Channel {
                 id: "345".to_string(),
                 name: "chat".to_string(),
-                messages: vec![
-                    Message {
-                        id: "xyz".to_string(),
-                        sender: "rcosta".to_string(),
-                        timestamp: "Today at 14:55".to_string(),
-                        content: "hello world!".to_string(),
-                    }
-                ],
+                messages: vec![],
             }),
         }
     }
@@ -73,17 +69,44 @@ impl App {
     fn handle_key_event(&mut self, e: KeyEvent) -> Result<()> {
         if e.modifiers.contains(KeyModifiers::CONTROL) {
             match e.code {
-                KeyCode::Char('c') => self.quit(),
                 KeyCode::Left => self.prev_screen(),
                 KeyCode::Right => self.next_screen(),
                 _ => {}
             }
         } else {
             match e.code {
-                _ => {}
+                KeyCode::Esc => self.quit(),
+                char => self.handle_input_box(char),
             }
         }
         Ok(())
+    }
+
+    fn handle_input_box(&mut self, e: KeyCode) {
+        match e {
+            KeyCode::Enter => {
+                if self.input_box.is_empty() {
+                    return;
+                }
+                let message = Message {
+                    id: "".to_string(),
+                    sender: "me".to_string(),
+                    datetime: Utc::now(),
+                    content: self.input_box.clone(),
+                };
+                if let Some(channel) = self.channel_selected.as_mut() {
+                    channel.messages.push(message);
+                }
+                self.input_box = "".to_string();
+            }
+            KeyCode::Backspace => {
+                self.input_box.pop();
+            }
+            KeyCode::Char(c) => {
+                self.input_box.push(c);
+            },
+            _ => {}
+        };
     }
 
     fn prev_screen(&mut self) {
