@@ -1,3 +1,4 @@
+use std::mem::discriminant;
 use crate::app::App;
 use crate::models::screen::Screen;
 use ratatui::layout::{Alignment, Rect};
@@ -23,7 +24,7 @@ pub fn header(app: &App, frame: &mut Frame, area: Rect) {
 fn navbar(curr_screen: &Screen) -> Line {
     let mut nav_items: Vec<Span> = Vec::new();
     for screen in Screen::all() {
-        if screen == *curr_screen {
+        if discriminant(&screen) == discriminant(curr_screen) {
             nav_items.push(Span::styled(
                 format!(" {} ", screen.as_str()),
                 Style::default().fg(Color::Yellow).bold(),

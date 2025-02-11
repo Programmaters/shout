@@ -27,8 +27,8 @@ pub fn render_ui(app: &App, frame: &mut Frame) {
 
 fn render_content(app: &App, frame: &mut Frame, area: Rect) {
     match app.screen {
-        Screen::Profile => render_profile(app, frame, area),
-        Screen::Chat => render_chat(app, frame, area),
-        Screen::Friends => render_friends(app, frame, area)
+        Screen::Profile(_) => render_profile(app, frame, area),
+        Screen::Chat(_) => render_chat(app, frame, area),
+        Screen::Friends(_) => render_friends(app, frame, area)
     };
 }

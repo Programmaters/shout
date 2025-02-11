@@ -1,5 +1,6 @@
 use crate::models::Id;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct User {
     pub id: Id,
     pub username: String,

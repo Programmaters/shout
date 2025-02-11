@@ -6,10 +6,14 @@ use crate::app::App;
 
 pub fn footer(_app: &App, frame: &mut Frame, area: Rect) {
     let help_text = Line::from(vec![
-        Span::raw("Switch Screen: "),
-        Span::styled("Ctrl+←/→", Style::default().fg(Color::LightCyan)),
+        Span::raw("Navigate Screen: "),
+        Span::styled("←/→", Style::default().fg(Color::LightCyan)),
+        Span::raw(" | Switch Screen: "),
+        Span::styled("Ctrl", Style::default().fg(Color::LightCyan)),
+        Span::raw("+"),
+        Span::styled("←/→", Style::default().fg(Color::LightCyan)),
         Span::raw(" | Quit: "),
-        Span::styled("Esc", Style::default().fg(Color::Yellow)),
+        Span::styled("Esc", Style::default().fg(Color::LightCyan)),
     ]);
     let paragraph = Paragraph::new(help_text)
         .alignment(Alignment::Center)
