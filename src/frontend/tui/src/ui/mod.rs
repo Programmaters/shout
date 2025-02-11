@@ -1,16 +1,16 @@
 mod components;
 
 use crate::app::App;
+use crate::models::screen::Screen;
+use crate::ui::components::chat::render_chat;
+use crate::ui::components::footer::footer;
+use crate::ui::components::friends::render_friends;
+use crate::ui::components::header::header;
+use crate::ui::components::profile::render_profile;
 use ratatui::{layout::{Constraint, Direction, Layout}, Frame};
 use ratatui::layout::Rect;
-use crate::models::screen::Screen;
-use crate::ui::components::chat::chat;
-use crate::ui::components::footer::footer;
-use crate::ui::components::friends::friends;
-use crate::ui::components::header::header;
-use crate::ui::components::profile::profile;
 
-pub fn ui(app: &App, frame: &mut Frame) {
+pub fn render_ui(app: &App, frame: &mut Frame) {
     let layout = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
@@ -21,14 +21,14 @@ pub fn ui(app: &App, frame: &mut Frame) {
         .split(frame.area());
 
     header(app, frame, layout[0]);
-    main_content(app, frame, layout[1]);
+    render_content(app, frame, layout[1]);
     footer(app, frame, layout[2]);
 }
 
-fn main_content(app: &App, frame: &mut Frame, rect: Rect) {
+fn render_content(app: &App, frame: &mut Frame, area: Rect) {
     match app.screen {
-        Screen::Profile => profile(app, frame, rect),
-        Screen::Chat => chat(app, frame, rect),
-        Screen::Friends => friends(app, frame, rect)
+        Screen::Profile => render_profile(app, frame, area),
+        Screen::Chat => render_chat(app, frame, area),
+        Screen::Friends => render_friends(app, frame, area)
     };
 }

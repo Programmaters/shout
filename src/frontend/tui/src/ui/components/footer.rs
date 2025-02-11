@@ -4,10 +4,10 @@ use ratatui::prelude::{Color, Line, Span, Style};
 use ratatui::widgets::{Block, Paragraph};
 use crate::app::App;
 
-pub fn footer(_app: &App, frame: &mut Frame, rect: Rect) {
+pub fn footer(_app: &App, frame: &mut Frame, area: Rect) {
     let help_text = Line::from(vec![
         Span::raw("Switch Screen: "),
-        Span::styled("Ctrl+←/→", Style::default().fg(Color::Cyan)),
+        Span::styled("Ctrl+←/→", Style::default().fg(Color::LightCyan)),
         Span::raw(" | Quit: "),
         Span::styled("Esc", Style::default().fg(Color::Yellow)),
     ]);
@@ -15,5 +15,5 @@ pub fn footer(_app: &App, frame: &mut Frame, rect: Rect) {
         .alignment(Alignment::Center)
         .block(Block::default());
 
-    frame.render_widget(paragraph, rect);
+    frame.render_widget(paragraph, area);
 }

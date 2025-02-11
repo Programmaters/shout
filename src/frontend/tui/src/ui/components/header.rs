@@ -6,24 +6,24 @@ use ratatui::style::Stylize;
 use ratatui::widgets::{Block, Paragraph};
 use ratatui::Frame;
 
-pub fn header(app: &App, frame: &mut Frame, rect: Rect) {
+pub fn header(app: &App, frame: &mut Frame, area: Rect) {
     let main_block = Block::bordered();
-    let title_content = Paragraph::new(" Shout ")
+    let title_content = Paragraph::new(Span::styled(" Shout ", Style::default().fg(Color::LightCyan)))
         .block(main_block.clone())
         .alignment(Alignment::Left);
 
-    let navbar_content = Paragraph::new(navbar(app))
+    let navbar_content = Paragraph::new(navbar(&app.screen))
         .block(main_block)
         .alignment(Alignment::Right);
 
-    frame.render_widget(title_content, rect);
-    frame.render_widget(navbar_content, rect);
+    frame.render_widget(title_content, area);
+    frame.render_widget(navbar_content, area);
 }
 
-fn navbar(app: &App) -> Line {
+fn navbar(curr_screen: &Screen) -> Line {
     let mut nav_items: Vec<Span> = Vec::new();
     for screen in Screen::all() {
-        if screen == app.screen {
+        if screen == *curr_screen {
             nav_items.push(Span::styled(
                 format!(" {} ", screen.as_str()),
                 Style::default().fg(Color::Yellow).bold(),
