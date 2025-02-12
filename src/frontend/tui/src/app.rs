@@ -28,11 +28,13 @@ impl App {
             id: "123".to_string(),
             username: "user1".to_string(),
             display_name: "User 1".to_string(),
+            online: true,
         };
         let user2 = User {
             id: "321".to_string(),
             username: "user2".to_string(),
             display_name: "User 2".to_string(),
+            online: false,
         };
         let channel = Channel {
             id: "345".to_string(),

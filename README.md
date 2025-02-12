@@ -11,16 +11,19 @@
 
 **TUI Real-time Messaging App**
 
-![](https://skillicons.dev/icons?i=rust,go,python,typescript,kotlin,cs,firebase,postgresql,mongodb,redis,docker)
+![](https://skillicons.dev/icons?i=rust,go,python,typescript,kotlin,cs,postgresql,mongodb,redis,docker)
 
 
 ![Contributors](https://img.shields.io/github/contributors/programmaters/shout)
 ![Repo size](https://img.shields.io/github/repo-size/programmaters/shout)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
+![demo](./demo.gif)
+
 </div>
 
 ---
+
 
 ## 🖧 Architecture
 - **Frontend**

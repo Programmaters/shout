@@ -1,4 +1,5 @@
 use color_eyre::owo_colors::OwoColorize;
+use crossterm::style::Attribute::Bold;
 use crate::app::App;
 use ratatui::layout::{Alignment, Constraint, Direction, Layout, Rect};
 use ratatui::style::{Color, Modifier, Style, Stylize};
@@ -115,14 +116,37 @@ fn render_members(app: &App, frame: &mut Frame, area: Rect) {
     let select_color = SelectState::from_bool(in_section).to_color();
     let members = channel.members
         .iter()
-        .map(|m| { format!(" {}", m.display_name.clone()) })
+        .enumerate()
+        .map(|(idx, m)| {
+            let name_modifier = if m.id == app.logged_user.clone().unwrap().id { Modifier::BOLD } else { Modifier::empty() };
+            let name_fg_color = if Some(idx) == app.members_index { Color::Black } else { Color::White };
+            let online_status_modifier = if m.online { Modifier::SLOW_BLINK } else { Modifier::empty() };
+            let online_status_color = if m.online { Color::LightGreen } else { Color::DarkGray };
+
+            Line::from(vec![
+                Span::raw(" "),
+                Span::styled(
+                    m.display_name.clone(),
+                    Style::default()
+                        .add_modifier(name_modifier)
+                        .fg(name_fg_color),
+                ),
+                Span::raw(" "),
+                Span::styled(
+                    "●",
+                    Style::default()
+                        .add_modifier(online_status_modifier)
+                        .fg(online_status_color),
+                ),
+            ])
+        })
         .collect::<Vec<_>>();
 
     let mut state = ListState::default();
     let title = Line::from("Members").style(Style::default().fg(select_color));
     let list = List::new(members)
         .block(Block::default().borders(Borders::ALL).title(title))
-        .highlight_style(Style::new().reversed());
+        .highlight_style(Style::new().bg(Color::White));
 
     state.select(app.members_index);
     frame.render_stateful_widget(list, area, &mut state);
