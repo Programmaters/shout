@@ -1,19 +1,19 @@
 use ratatui::Frame;
 use ratatui::layout::{Alignment, Rect};
 use ratatui::prelude::{Color, Line, Span, Style};
-use ratatui::widgets::{Block, Paragraph};
+use ratatui::widgets::{Block, Borders, Paragraph};
 use crate::app::App;
 
 pub fn footer(_app: &App, frame: &mut Frame, area: Rect) {
     let help_text = Line::from(vec![
         Span::raw("Navigate Screen: "),
-        Span::styled("←/→", Style::default().fg(Color::LightCyan)),
+        Span::styled("←/→", Style::default().fg(Color::Yellow)),
         Span::raw(" | Switch Screen: "),
-        Span::styled("Ctrl", Style::default().fg(Color::LightCyan)),
+        Span::styled("Ctrl", Style::default().fg(Color::Yellow)),
         Span::raw("+"),
-        Span::styled("←/→", Style::default().fg(Color::LightCyan)),
+        Span::styled("←/→", Style::default().fg(Color::Yellow)),
         Span::raw(" | Quit: "),
-        Span::styled("Esc", Style::default().fg(Color::LightCyan)),
+        Span::styled("Esc", Style::default().fg(Color::Yellow)),
     ]);
     let paragraph = Paragraph::new(help_text)
         .alignment(Alignment::Center)

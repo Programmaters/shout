@@ -1,4 +1,5 @@
 mod components;
+mod utils;
 
 use crate::app::App;
 use crate::models::screen::Screen;
@@ -16,7 +17,7 @@ pub fn render_ui(app: &App, frame: &mut Frame) {
         .constraints([
             Constraint::Length(3), // header
             Constraint::Min(0), // main content
-            Constraint::Length(3), // footer
+            Constraint::Length(1), // footer
         ])
         .split(frame.area());
 

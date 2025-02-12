@@ -13,30 +13,30 @@ pub enum ProfileSection {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ChatSection {
-    ChannelList,
-    Chat,
-    MemberList
+    Channels,
+    Messages,
+    Members
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FriendsSection {
-    FriendList,
-    Chat,
-    FriendRequests
+    Friends,
+    Messages,
+    Requests
 }
 
 impl Screen {
     pub fn next(self) -> Self {
         match self {
-            Screen::Profile(_) => Screen::Chat(ChatSection::Chat),
-            Screen::Chat(_) => Screen::Friends(FriendsSection::Chat),
-            Screen::Friends(_) => Screen::Friends(FriendsSection::Chat),
+            Screen::Profile(_) => Screen::Chat(ChatSection::Messages),
+            Screen::Chat(_) => Screen::Friends(FriendsSection::Messages),
+            Screen::Friends(_) => Screen::Friends(FriendsSection::Messages),
         }
     }
 
     pub fn previous(self) -> Self {
         match self {
-            Screen::Friends(_) => Screen::Chat(ChatSection::Chat),
+            Screen::Friends(_) => Screen::Chat(ChatSection::Messages),
             Screen::Chat(_) => Screen::Profile(ProfileSection::Profile),
             Screen::Profile(_) => Screen::Profile(ProfileSection::Profile)
         }
@@ -45,8 +45,8 @@ impl Screen {
     pub fn all() -> Vec<Self> {
         vec![
             Screen::Profile(ProfileSection::Profile),
-            Screen::Chat(ChatSection::Chat),
-            Screen::Friends(FriendsSection::Chat),
+            Screen::Chat(ChatSection::Messages),
+            Screen::Friends(FriendsSection::Messages),
         ]
     }
 
@@ -62,16 +62,16 @@ impl Screen {
 impl ChatSection {
     pub fn next(self) -> Self {
         match self {
-            ChatSection::ChannelList => ChatSection::Chat,
-            ChatSection::Chat => ChatSection::MemberList,
+            ChatSection::Channels => ChatSection::Messages,
+            ChatSection::Messages => ChatSection::Members,
             _ => self
         }
     }
 
     pub fn prev(self) -> Self {
         match self {
-            ChatSection::MemberList => ChatSection::Chat,
-            ChatSection::Chat => ChatSection::ChannelList,
+            ChatSection::Members => ChatSection::Messages,
+            ChatSection::Messages => ChatSection::Channels,
             _ => self
         }
     }
