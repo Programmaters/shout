@@ -8,13 +8,14 @@ use ratatui::widgets::{Block, Paragraph};
 use ratatui::Frame;
 use crate::ui::utils::select_state::SelectState;
 
-pub fn header(app: &App, frame: &mut Frame, area: Rect) {
+pub fn render_header(app: &App, frame: &mut Frame, area: Rect) {
     let main_block = Block::bordered();
     let title_content = Paragraph::new(" Shout ")
         .block(main_block.clone())
         .alignment(Alignment::Left);
 
-    let navbar_content = Paragraph::new(navbar(&app.screen))
+    let screen = app.get_screen();
+    let navbar_content = Paragraph::new(navbar(&screen))
         .block(main_block)
         .alignment(Alignment::Right);
 

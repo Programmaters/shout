@@ -1,6 +1,8 @@
 mod app;
 mod models;
 mod ui;
+mod events;
+mod navigation;
 
 use crate::app::App;
 use color_eyre::Result;

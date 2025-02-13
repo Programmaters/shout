@@ -8,7 +8,7 @@ pub enum SelectState {
 impl SelectState {
     pub fn to_color(&self) -> Color {
         match self {
-            SelectState::Selected => Color::LightCyan,
+            SelectState::Selected => Color::White,
             SelectState::Unselected => Color::Gray,
         }
     }
