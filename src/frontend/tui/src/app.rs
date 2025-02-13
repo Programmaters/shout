@@ -87,12 +87,12 @@ impl App {
     }
 
     pub fn prev_section(&mut self) {
-        let mut curr_screen = &mut self.screens[self.screen_index];
+        let curr_screen = &mut self.screens[self.screen_index];
         curr_screen.prev_section();
     }
 
     pub fn next_section(&mut self) {
-        let mut curr_screen = &mut self.screens[self.screen_index];
+        let curr_screen = &mut self.screens[self.screen_index];
         curr_screen.next_section();
     }
 

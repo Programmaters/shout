@@ -60,14 +60,6 @@ impl Screen {
         self.change_section(true);
     }
 
-    pub fn as_chat_mut(&mut self) -> Option<&mut ChatScreen> {
-        if let Screen::Chat(chat) = self {
-            Some(chat)
-        } else {
-            None
-        }
-    }
-
     pub fn all() -> Vec<Self> {
         vec![
             Screen::Profile(ProfileScreen { section: ProfileSection::Profile }),

@@ -23,15 +23,15 @@ pub fn render_chat(app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) 
     render_members(app, chat, frame, chunks[2]);
 }
 
-fn render_channels(app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) {
+fn render_channels(_app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) {
     let in_section = chat.section == ChatSection::Channels;
     let select_color = SelectState::from_bool(in_section).to_color();
     let channels = chat.channels
         .iter()
         .map(|c| {
             let selected = c.id == chat.channel_selected;
-            let selected_symbol = if selected { " > " } else { " "};
-            format!("{}#{}", selected_symbol, c.name.clone())
+            let selected_symbol = if selected { "> " } else { "  "};
+            format!("{}# {}", selected_symbol, c.name.clone())
         })
         .collect::<Vec<_>>();
 
@@ -111,7 +111,7 @@ fn render_messages(app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) 
 
 fn render_members(app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) {
     let channel = chat.get_channel();
-    let in_section = chat.section == ChatSection::Messages;
+    let in_section = chat.section == ChatSection::Members;
     let select_color = SelectState::from_bool(in_section).to_color();
     let members = channel.members
         .iter()
@@ -119,9 +119,13 @@ fn render_members(app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) {
         .map(|(idx, m)| {
             let name_modifier = if m.id == app.logged_user.clone().unwrap().id { Modifier::BOLD } else { Modifier::empty() };
             let name_fg_color = if Some(idx) == chat.members_index { Color::Black } else { select_color };
-            let online_status_modifier = if m.online { Modifier::SLOW_BLINK } else { Modifier::empty() };
-            let online_status_color = if m.online { Color::LightGreen } else { Color::DarkGray };
-
+            let online_status_style = if m.online {
+                Style::default()
+                    .fg(Color::LightGreen)
+                    .add_modifier(Modifier::SLOW_BLINK)
+            } else {
+                Style::default()
+            };
             Line::from(vec![
                 Span::raw(" "),
                 Span::styled(
@@ -131,12 +135,7 @@ fn render_members(app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) {
                         .fg(name_fg_color),
                 ),
                 Span::raw(" "),
-                Span::styled(
-                    "●",
-                    Style::default()
-                        .add_modifier(online_status_modifier)
-                        .fg(online_status_color),
-                ),
+                Span::styled("●", online_status_style),
             ])
         })
         .collect::<Vec<_>>();
