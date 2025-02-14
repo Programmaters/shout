@@ -1,4 +1,6 @@
 use chrono::Utc;
+use reqwest::Client;
+use crate::api::Api;
 use crate::models::channel::Channel;
 use crate::models::Id;
 use crate::models::message::Message;
@@ -86,9 +88,9 @@ impl Screen {
 }
 
 impl ChatScreen {
-    pub fn send_message(&mut self, sender: Id) {
+    pub fn create_message(&mut self, sender: Id) -> Option<Message> {
         if self.input_field.is_empty() {
-            return;
+            return None;
         }
         let message = Message {
             id: "".to_string(),
@@ -96,9 +98,11 @@ impl ChatScreen {
             datetime: Utc::now(),
             content: self.input_field.clone(),
         };
-        self.get_channel_mut().messages.push(message);
+
+        self.get_channel_mut().messages.push(message.clone());
         self.input_field = "".to_string();
         self.scroll_offset = 0;
+        Some(message)
     }
 
     pub fn get_channel(&self) -> &Channel {

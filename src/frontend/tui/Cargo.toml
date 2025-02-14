@@ -8,3 +8,7 @@ chrono = "0.4.39"
 color-eyre = "0.6.3"
 crossterm = "0.28.1"
 ratatui = "0.29.0"
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.11", features = ["json"] }
+serde = { version = "1", features = ["derive"] }
+lazy_static = "1.5.0"

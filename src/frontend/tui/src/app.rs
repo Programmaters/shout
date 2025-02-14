@@ -1,13 +1,14 @@
 use crate::events::handle_events;
-use crate::models::channel::Channel;
 use crate::models::screen::{ChatScreen, ChatSection, FriendsScreen, FriendsSection, ProfileScreen, ProfileSection, Screen};
 use crate::models::user::User;
 use crate::models::Id;
 use crate::ui::render_ui;
 use color_eyre::Result;
 use ratatui::{DefaultTerminal, Frame};
+use crate::api::Api;
 
 pub struct App {
+    pub api: Api,
     pub running: bool,
     pub screen_index: usize,
     pub screens: Vec<Screen>,
@@ -16,9 +17,11 @@ pub struct App {
 }
 
 impl App {
-    pub fn new() -> Self {
-        let (user1, user2) = create_sample_users();
-        let (channel1, channel2) = create_sample_channels(&user1, &user2);
+    pub async fn new() -> Self {
+        let api = Api::new();
+        let logged_user = api.login().await.unwrap();
+        let users = api.get_users().await.unwrap();
+        let channels = api.get_channels().await.unwrap();
         let chat_screen = Screen::Chat(
             ChatScreen {
                 section: ChatSection::Messages,
@@ -26,8 +29,8 @@ impl App {
                 members_index: None,
                 input_field: "".to_string(),
                 scroll_offset: 0,
-                channel_selected: channel1.clone().id,
-                channels: vec![channel1, channel2],
+                channel_selected: channels[0].id.clone(),
+                channels,
             }
         );
 
@@ -42,11 +45,12 @@ impl App {
             }
         );
         App {
+            api,
             running: true,
             screen_index: 1,
             screens: vec![profile_screen, chat_screen, friends_screen],
-            logged_user: Some(user1.clone()),
-            users: vec![user1, user2],
+            logged_user,
+            users,
         }
     }
 
@@ -99,37 +103,4 @@ impl App {
     pub fn quit(&mut self) {
         self.running = false;
     }
-}
-
-
-fn create_sample_users() -> (User, User) {
-    let user1 = User {
-        id: "123".to_string(),
-        username: "user1".to_string(),
-        display_name: "User 1".to_string(),
-        online: true,
-    };
-    let user2 = User {
-        id: "321".to_string(),
-        username: "user2".to_string(),
-        display_name: "User 2".to_string(),
-        online: false,
-    };
-    (user1, user2)
-}
-
-fn create_sample_channels(user1: &User, user2: &User) -> (Channel, Channel){
-    let channel1 = Channel {
-        id: "345".to_string(),
-        name: "chat".to_string(),
-        members: vec![user1.clone(), user2.clone()],
-        messages: vec![],
-    };
-    let channel2 = Channel {
-        id: "567".to_string(),
-        name: "other-chat".to_string(),
-        members: vec![user1.clone()],
-        messages: vec![],
-    };
-    (channel1, channel2)
 }

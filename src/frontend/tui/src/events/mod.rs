@@ -1,8 +1,10 @@
+mod navigation;
+
 use crate::app::App;
 use color_eyre::Result;
 use crossterm::event;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
-use crate::navigation::handle_navigation;
+use crate::events::navigation::handle_navigation;
 use crate::models::screen::{ChatSection, Screen};
 
 pub fn handle_events(app: &mut App) -> Result<()> {
@@ -47,7 +49,15 @@ fn handle_char(app: &mut App, key: KeyCode) {
             match chat.section {
                 ChatSection::Messages => {
                     match key {
-                        KeyCode::Enter => chat.send_message(logged_user_id),
+                        KeyCode::Enter => {
+                            if let Some(msg) = chat.create_message(logged_user_id) {
+                                let channel_selected = chat.channel_selected.clone();
+                                let api = app.api.clone();
+                                tokio::spawn(async move {
+                                    api.send_message(msg, channel_selected).await
+                                });
+                            }
+                        },
                         KeyCode::Backspace => { chat.input_field.pop(); },
                         KeyCode::Char(c) => { chat.input_field.push(c); },
                         _ => {}
