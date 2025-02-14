@@ -1,11 +1,14 @@
+use crate::api::Api;
 use crate::events::handle_events;
-use crate::models::screen::{ChatScreen, ChatSection, FriendsScreen, FriendsSection, ProfileScreen, ProfileSection, Screen};
 use crate::models::user::User;
 use crate::models::Id;
+use crate::screens::chat::{ChatScreen, ChatSection};
+use crate::screens::friends::{FriendsScreen, FriendsSection};
+use crate::screens::profile::{ProfileScreen, ProfileSection};
+use crate::screens::Screen;
 use crate::ui::render_ui;
 use color_eyre::Result;
 use ratatui::{DefaultTerminal, Frame};
-use crate::api::Api;
 
 pub struct App {
     pub api: Api,
@@ -22,28 +25,21 @@ impl App {
         let logged_user = api.login().await.unwrap();
         let users = api.get_users().await.unwrap();
         let channels = api.get_channels().await.unwrap();
-        let chat_screen = Screen::Chat(
-            ChatScreen {
-                section: ChatSection::Messages,
-                channels_index: None,
-                members_index: None,
-                input_field: "".to_string(),
-                scroll_offset: 0,
-                channel_selected: channels[0].id.clone(),
-                channels,
-            }
-        );
-
-        let profile_screen = Screen::Profile(
-            ProfileScreen {
-                section: ProfileSection::Profile,
-            }
-        );
-        let friends_screen = Screen::Friends(
-            FriendsScreen {
-                section: FriendsSection::Friends,
-            }
-        );
+        let chat_screen = Screen::Chat(ChatScreen {
+            section: ChatSection::Messages,
+            channels_index: None,
+            members_index: None,
+            input_field: "".to_string(),
+            scroll_offset: 0,
+            channel_selected: channels[0].id.clone(),
+            channels,
+        });
+        let profile_screen = Screen::Profile(ProfileScreen {
+            section: ProfileSection::Profile,
+        });
+        let friends_screen = Screen::Friends(FriendsScreen {
+            section: FriendsSection::Friends,
+        });
         App {
             api,
             running: true,
@@ -67,7 +63,11 @@ impl App {
     }
 
     pub fn get_user(&self, id: Id) -> User {
-        self.users.iter().find(|member| member.id == id).unwrap().clone()
+        self.users
+            .iter()
+            .find(|member| member.id == id)
+            .unwrap()
+            .clone()
     }
 
     pub fn get_screen_mut(&mut self) -> &mut Screen {

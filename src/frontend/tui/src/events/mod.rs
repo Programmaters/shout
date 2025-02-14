@@ -1,17 +1,16 @@
 mod navigation;
 
 use crate::app::App;
+use crate::events::navigation::handle_navigation;
+use crate::screens::chat::ChatSection;
+use crate::screens::Screen;
 use color_eyre::Result;
 use crossterm::event;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
-use crate::events::navigation::handle_navigation;
-use crate::models::screen::{ChatSection, Screen};
 
 pub fn handle_events(app: &mut App) -> Result<()> {
     match event::read()? {
-        Event::Key(e) if e.kind == KeyEventKind::Press => {
-            handle_key_event(app, e)
-        }
+        Event::Key(e) if e.kind == KeyEventKind::Press => handle_key_event(app, e),
         _ => {}
     }
     Ok(())
@@ -30,14 +29,16 @@ fn handle_control_key(app: &mut App, e: KeyEvent) {
         KeyCode::Left => app.prev_screen(),
         KeyCode::Right => app.next_screen(),
         KeyCode::Backspace => handle_ctrl_backspace(app),
-        _ => {},
+        _ => {}
     }
 }
 
 fn handle_normal_key(app: &mut App, e: KeyEvent) {
     match e.code {
         KeyCode::Esc => app.quit(),
-        KeyCode::Up | KeyCode::Down | KeyCode::Right | KeyCode::Left => handle_navigation(app, e.code),
+        KeyCode::Up | KeyCode::Down | KeyCode::Right | KeyCode::Left => {
+            handle_navigation(app, e.code)
+        }
         char => handle_char(app, char),
     }
 }
@@ -45,28 +46,26 @@ fn handle_normal_key(app: &mut App, e: KeyEvent) {
 fn handle_char(app: &mut App, key: KeyCode) {
     let logged_user_id = app.logged_user.clone().unwrap().id;
     match app.get_screen_mut() {
-        Screen::Chat(ref mut chat) => {
-            match chat.section {
-                ChatSection::Messages => {
-                    match key {
-                        KeyCode::Enter => {
-                            if let Some(msg) = chat.create_message(logged_user_id) {
-                                let channel_selected = chat.channel_selected.clone();
-                                let api = app.api.clone();
-                                tokio::spawn(async move {
-                                    api.send_message(msg, channel_selected).await
-                                });
-                            }
-                        },
-                        KeyCode::Backspace => { chat.input_field.pop(); },
-                        KeyCode::Char(c) => { chat.input_field.push(c); },
-                        _ => {}
+        Screen::Chat(ref mut chat) => match chat.section {
+            ChatSection::Messages => match key {
+                KeyCode::Enter => {
+                    if let Some(msg) = chat.create_message(logged_user_id) {
+                        let channel_selected = chat.channel_selected.clone();
+                        let api = app.api.clone();
+                        tokio::spawn(async move { api.send_message(msg, channel_selected).await });
                     }
                 }
-                ChatSection::Channels => chat.select_channel(),
+                KeyCode::Backspace => {
+                    chat.input_field.pop();
+                }
+                KeyCode::Char(c) => {
+                    chat.input_field.push(c);
+                }
                 _ => {}
-            }
-        }
+            },
+            ChatSection::Channels => chat.select_channel(),
+            _ => {}
+        },
         _ => {}
     }
 }

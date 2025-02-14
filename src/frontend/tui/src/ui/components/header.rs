@@ -1,12 +1,12 @@
-use std::mem::discriminant;
 use crate::app::App;
-use crate::models::screen::Screen;
+use crate::screens::Screen;
+use crate::ui::utils::select_state::SelectState;
 use ratatui::layout::{Alignment, Rect};
 use ratatui::prelude::{Color, Line, Modifier, Span, Style};
 use ratatui::style::Stylize;
 use ratatui::widgets::{Block, Paragraph};
 use ratatui::Frame;
-use crate::ui::utils::select_state::SelectState;
+use std::mem::discriminant;
 
 pub fn render_header(app: &App, frame: &mut Frame, area: Rect) {
     let main_block = Block::bordered();
@@ -23,11 +23,14 @@ pub fn render_header(app: &App, frame: &mut Frame, area: Rect) {
         Style::default()
     };
     let logged_user_content = Paragraph::new(Line::from(vec![
-            Span::raw(format!("{}  @{}  ", logged_user.display_name, logged_user.username)),
-            Span::styled("●", online_status_style),
-        ]))
-        .block(main_block.clone())
-        .alignment(Alignment::Center);
+        Span::raw(format!(
+            "{}  @{}  ",
+            logged_user.display_name, logged_user.username
+        )),
+        Span::styled("●", online_status_style),
+    ]))
+    .block(main_block.clone())
+    .alignment(Alignment::Center);
 
     let screen = app.get_screen();
     let navbar_content = Paragraph::new(navbar(&screen))
@@ -45,7 +48,9 @@ fn navbar(curr_screen: &Screen) -> Line {
         let in_screen = discriminant(&screen) == discriminant(curr_screen);
         nav_items.push(Span::styled(
             format!(" {} ", screen.as_str()),
-            Style::default().fg(SelectState::from_bool(in_screen).to_color()).bold(),
+            Style::default()
+                .fg(SelectState::from_bool(in_screen).to_color())
+                .bold(),
         ));
         nav_items.push(Span::raw("|"));
     }

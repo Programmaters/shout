@@ -1,9 +1,9 @@
-use ratatui::Frame;
+use crate::app::App;
+use crate::screens::profile::ProfileScreen;
 use ratatui::layout::Rect;
 use ratatui::prelude::Text;
 use ratatui::widgets::Paragraph;
-use crate::app::App;
-use crate::models::screen::ProfileScreen;
+use ratatui::Frame;
 
 pub fn render_profile(_app: &App, _profile: &ProfileScreen, frame: &mut Frame, area: Rect) {
     let profile_text = Text::from("This is the profile screen");

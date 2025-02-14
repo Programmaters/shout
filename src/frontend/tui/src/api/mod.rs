@@ -1,9 +1,9 @@
-use lazy_static::lazy_static;
-use reqwest::Client;
 use crate::models::channel::Channel;
-use crate::models::Id;
 use crate::models::message::Message;
 use crate::models::user::User;
+use crate::models::Id;
+use lazy_static::lazy_static;
+use reqwest::Client;
 
 lazy_static! {
     static ref BASE_URL: &'static str = "http://localhost:8000";
@@ -52,7 +52,7 @@ impl Api {
         Ok(Some(USER1.clone()))
     }
 
-    pub async fn get_users(&self) -> Result<Vec<User>, &'static str>  {
+    pub async fn get_users(&self) -> Result<Vec<User>, &'static str> {
         Ok(vec![USER1.clone(), USER2.clone()])
     }
 

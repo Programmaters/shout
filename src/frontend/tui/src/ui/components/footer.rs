@@ -1,8 +1,8 @@
-use ratatui::Frame;
+use crate::app::App;
 use ratatui::layout::{Alignment, Rect};
 use ratatui::prelude::{Color, Line, Span, Style};
 use ratatui::widgets::{Block, Paragraph};
-use crate::app::App;
+use ratatui::Frame;
 
 pub fn render_footer(_app: &App, frame: &mut Frame, area: Rect) {
     let help_text = Line::from(vec![

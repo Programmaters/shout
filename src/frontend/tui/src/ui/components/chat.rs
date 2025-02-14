@@ -1,12 +1,15 @@
 use crate::app::App;
+use crate::screens::chat::{ChatScreen, ChatSection};
+use crate::ui::utils::datetime::format_datetime;
+use crate::ui::utils::select_state::SelectState;
 use ratatui::layout::{Alignment, Constraint, Direction, Layout, Rect};
 use ratatui::style::{Color, Modifier, Style, Stylize};
 use ratatui::text::{Line, Span, Text};
-use ratatui::widgets::{Block, Borders, List, ListState, Paragraph, Scrollbar, ScrollbarOrientation, ScrollbarState, Wrap};
+use ratatui::widgets::{
+    Block, Borders, List, ListState, Paragraph, Scrollbar, ScrollbarOrientation, ScrollbarState,
+    Wrap,
+};
 use ratatui::Frame;
-use crate::models::screen::{ChatScreen, ChatSection};
-use crate::ui::utils::datetime::format_datetime;
-use crate::ui::utils::select_state::SelectState;
 
 pub fn render_chat(app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) {
     let chunks = Layout::default()
@@ -26,18 +29,24 @@ pub fn render_chat(app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) 
 fn render_channels(_app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) {
     let in_section = chat.section == ChatSection::Channels;
     let select_color = SelectState::from_bool(in_section).to_color();
-    let channels = chat.channels
+    let channels = chat
+        .channels
         .iter()
         .map(|c| {
             let selected = c.id == chat.channel_selected;
-            let selected_symbol = if selected { "> " } else { "  "};
+            let selected_symbol = if selected { "> " } else { "  " };
             format!("{}# {}", selected_symbol, c.name.clone())
         })
         .collect::<Vec<_>>();
 
     let mut state = ListState::default();
     let list = List::new(channels)
-        .block(Block::bordered().title("Channels").borders(Borders::ALL).fg(select_color))
+        .block(
+            Block::bordered()
+                .title("Channels")
+                .borders(Borders::ALL)
+                .fg(select_color),
+        )
         .highlight_style(Style::new().reversed());
 
     state.select(chat.channels_index);
@@ -51,19 +60,24 @@ fn render_messages(app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) 
     let in_section = chat.section == ChatSection::Messages;
     let select_color = SelectState::from_bool(in_section).to_color();
 
-    let messages_text: Text = channel_selected.messages.iter()
+    let messages_text: Text = channel_selected
+        .messages
+        .iter()
         .flat_map(|m| {
-            let align = if m.sender == logged_user.id { Alignment::Right } else { Alignment::Left };
+            let align = if m.sender == logged_user.id {
+                Alignment::Right
+            } else {
+                Alignment::Left
+            };
             let header = Line::from(Span::styled(
                 format!(" {} ", format_datetime(m.datetime)),
                 Style::default().fg(Color::DarkGray),
             ));
             let sender = app.get_user(m.sender.clone());
-            let message = Line::from(
-                vec![
-                    Span::styled(sender.username, Style::default().bold()),
-                    Span::raw(format!( ": {} ", m.content.clone()))
-                ]);
+            let message = Line::from(vec![
+                Span::styled(sender.username, Style::default().bold()),
+                Span::raw(format!(": {} ", m.content.clone())),
+            ]);
             vec![
                 header.alignment(align),
                 message.alignment(align),
@@ -76,7 +90,7 @@ fn render_messages(app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) 
     let middle_chunk = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Min(0), // chat
+            Constraint::Min(0),    // chat
             Constraint::Length(2), // input box
         ])
         .split(area);
@@ -87,11 +101,17 @@ fn render_messages(app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) 
     let effective_scroll_offset = (chat.scroll_offset as u16).min(max_scroll_offset);
     let first_visible_line = max_scroll_offset.saturating_sub(effective_scroll_offset);
     let scrollbar_total = max_scroll_offset + 1;
-    let mut scrollbar_state = ScrollbarState::new(scrollbar_total as usize).position(first_visible_line as usize);
+    let mut scrollbar_state =
+        ScrollbarState::new(scrollbar_total as usize).position(first_visible_line as usize);
     let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight).track_symbol(Some("│"));
 
     let messages = Paragraph::new(messages_text)
-        .block(Block::default().borders(Borders::ALL).title(channel_name.clone()).fg(select_color))
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .title(channel_name.clone())
+                .fg(select_color),
+        )
         .scroll((first_visible_line, 0))
         .wrap(Wrap { trim: true });
 
@@ -100,9 +120,11 @@ fn render_messages(app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) 
     } else {
         chat.input_field.clone()
     };
-    let input_field = Paragraph::new(
-        Span::styled(input_field_content, Style::default()))
-        .block(Block::default().borders(Borders::LEFT | Borders::RIGHT | Borders::BOTTOM).fg(select_color));
+    let input_field = Paragraph::new(Span::styled(input_field_content, Style::default())).block(
+        Block::default()
+            .borders(Borders::LEFT | Borders::RIGHT | Borders::BOTTOM)
+            .fg(select_color),
+    );
 
     frame.render_widget(messages, middle_chunk[0]);
     frame.render_stateful_widget(scrollbar, middle_chunk[0], &mut scrollbar_state);
@@ -113,12 +135,21 @@ fn render_members(app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) {
     let channel = chat.get_channel();
     let in_section = chat.section == ChatSection::Members;
     let select_color = SelectState::from_bool(in_section).to_color();
-    let members = channel.members
+    let members = channel
+        .members
         .iter()
         .enumerate()
         .map(|(idx, m)| {
-            let name_modifier = if m.id == app.logged_user.clone().unwrap().id { Modifier::BOLD } else { Modifier::empty() };
-            let name_fg_color = if Some(idx) == chat.members_index { Color::Black } else { select_color };
+            let name_modifier = if m.id == app.logged_user.clone().unwrap().id {
+                Modifier::BOLD
+            } else {
+                Modifier::empty()
+            };
+            let name_fg_color = if Some(idx) == chat.members_index {
+                Color::Black
+            } else {
+                select_color
+            };
             let online_status_style = if m.online {
                 Style::default()
                     .fg(Color::LightGreen)
@@ -142,7 +173,12 @@ fn render_members(app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) {
 
     let mut state = ListState::default();
     let list = List::new(members)
-        .block(Block::default().borders(Borders::ALL).title("Members").fg(select_color))
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .title("Members")
+                .fg(select_color),
+        )
         .highlight_style(Style::new().bg(Color::White));
 
     state.select(chat.members_index);

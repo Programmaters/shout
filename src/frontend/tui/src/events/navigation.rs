@@ -1,6 +1,7 @@
-use crossterm::event::KeyCode;
 use crate::app::App;
-use crate::models::screen::{ChatScreen, ChatSection, Screen};
+use crate::screens::chat::{ChatScreen, ChatSection};
+use crate::screens::Screen;
+use crossterm::event::KeyCode;
 
 pub fn handle_navigation(app: &mut App, key: KeyCode) {
     match key {
@@ -22,45 +23,40 @@ fn handle_chat_navigation(key: KeyCode, chat: &mut ChatScreen) {
                 _ => {}
             }
         }
-        ChatSection::Channels => {
-            match key {
-                KeyCode::Up => {
-                    if let Some(index) = chat.channels_index {
-                        chat.channels_index = Some(index.saturating_sub(1));
-                    }
-                },
-                KeyCode::Down => {
-                    if let Some(index) = chat.channels_index {
-                        if index < chat.channels.len() - 1 {
-                            chat.channels_index = Some(index.saturating_add(1));
-                        }
-                    } else {
-                        chat.channels_index = Some(0);
-                    }
+        ChatSection::Channels => match key {
+            KeyCode::Up => {
+                if let Some(index) = chat.channels_index {
+                    chat.channels_index = Some(index.saturating_sub(1));
                 }
-                _ => {}
             }
-        }
-        ChatSection::Members => {
-            match key {
-                KeyCode::Up => {
-                    if let Some(index) = chat.members_index {
-                        chat.members_index = Some(index.saturating_sub(1));
+            KeyCode::Down => {
+                if let Some(index) = chat.channels_index {
+                    if index < chat.channels.len() - 1 {
+                        chat.channels_index = Some(index.saturating_add(1));
                     }
-                },
-                KeyCode::Down => {
-                    if let Some(index) = chat.members_index {
-                        let channel = chat.get_channel();
-                        if index < channel.members.len() - 1 {
-                            chat.members_index = Some(index.saturating_add(1));
-                        }
-                    } else {
-                        chat.members_index = Some(0);
-                    }
-
+                } else {
+                    chat.channels_index = Some(0);
                 }
-                _ => {}
             }
-        }
+            _ => {}
+        },
+        ChatSection::Members => match key {
+            KeyCode::Up => {
+                if let Some(index) = chat.members_index {
+                    chat.members_index = Some(index.saturating_sub(1));
+                }
+            }
+            KeyCode::Down => {
+                if let Some(index) = chat.members_index {
+                    let channel = chat.get_channel();
+                    if index < channel.members.len() - 1 {
+                        chat.members_index = Some(index.saturating_add(1));
+                    }
+                } else {
+                    chat.members_index = Some(0);
+                }
+            }
+            _ => {}
+        },
     }
 }

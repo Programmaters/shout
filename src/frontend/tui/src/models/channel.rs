@@ -1,6 +1,6 @@
-use crate::models::Id;
 use crate::models::message::Message;
 use crate::models::user::User;
+use crate::models::Id;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Channel {

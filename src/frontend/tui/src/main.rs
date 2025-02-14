@@ -1,8 +1,9 @@
-mod app;
-mod models;
-mod ui;
-mod events;
 mod api;
+mod app;
+mod events;
+mod models;
+mod screens;
+mod ui;
 
 use crate::app::App;
 use color_eyre::Result;

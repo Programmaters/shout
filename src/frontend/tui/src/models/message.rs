@@ -1,5 +1,5 @@
-use chrono::{DateTime, Utc};
 use crate::models::Id;
+use chrono::{DateTime, Utc};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Message {

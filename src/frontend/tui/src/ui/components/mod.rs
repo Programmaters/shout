@@ -1,5 +1,5 @@
-pub mod header;
-pub mod footer;
 pub mod chat;
-pub mod profile;
+pub mod footer;
 pub mod friends;
+pub mod header;
+pub mod profile;
