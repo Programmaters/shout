@@ -58,5 +58,6 @@ fn handle_chat_navigation(key: KeyCode, chat: &mut ChatScreen) {
             }
             _ => {}
         },
+        _ => {}
     }
 }

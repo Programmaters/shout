@@ -1,13 +1,15 @@
 use crate::app::App;
 use crate::screens::chat::{ChatScreen, ChatSection};
 use crate::ui::utils::datetime::format_datetime;
+use crate::ui::utils::popup::popup_area;
 use crate::ui::utils::select_state::SelectState;
+use color_eyre::owo_colors::OwoColorize;
 use ratatui::layout::{Alignment, Constraint, Direction, Layout, Rect};
 use ratatui::style::{Color, Modifier, Style, Stylize};
 use ratatui::text::{Line, Span, Text};
 use ratatui::widgets::{
-    Block, Borders, List, ListState, Paragraph, Scrollbar, ScrollbarOrientation, ScrollbarState,
-    Wrap,
+    Block, Borders, Clear, List, ListState, Paragraph, Scrollbar, ScrollbarOrientation,
+    ScrollbarState, Wrap,
 };
 use ratatui::Frame;
 
@@ -24,6 +26,7 @@ pub fn render_chat(app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) 
     render_channels(app, chat, frame, chunks[0]);
     render_messages(app, chat, frame, chunks[1]);
     render_members(app, chat, frame, chunks[2]);
+    render_popup(app, chat, frame, area);
 }
 
 fn render_channels(_app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) {
@@ -33,7 +36,7 @@ fn render_channels(_app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect)
         .channels
         .iter()
         .map(|c| {
-            let selected = c.id == chat.channel_selected;
+            let selected = Some(c.id.clone()) == chat.channel_selected;
             let selected_symbol = if selected { "> " } else { "  " };
             format!("{}# {}", selected_symbol, c.name.clone())
         })
@@ -183,4 +186,13 @@ fn render_members(app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) {
 
     state.select(chat.members_index);
     frame.render_stateful_widget(list, area, &mut state);
+}
+
+fn render_popup(_app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) {
+    if chat.section == ChatSection::Popup {
+        let block = Block::bordered().title("Manage Channel").white();
+        let area = popup_area(area, 50, 70);
+        frame.render_widget(Clear, area);
+        frame.render_widget(block, area);
+    }
 }

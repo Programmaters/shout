@@ -39,6 +39,7 @@ fn handle_normal_key(app: &mut App, e: KeyEvent) {
         KeyCode::Up | KeyCode::Down | KeyCode::Right | KeyCode::Left => {
             handle_navigation(app, e.code)
         }
+        KeyCode::Tab => handle_popup_state(app),
         char => handle_char(app, char),
     }
 }
@@ -49,8 +50,8 @@ fn handle_char(app: &mut App, key: KeyCode) {
         Screen::Chat(ref mut chat) => match chat.section {
             ChatSection::Messages => match key {
                 KeyCode::Enter => {
-                    if let Some(msg) = chat.create_message(logged_user_id) {
-                        let channel_selected = chat.channel_selected.clone();
+                    if let Some(msg) = chat.get_message(logged_user_id) {
+                        let channel_selected = chat.channel_selected.clone().unwrap();
                         let api = app.api.clone();
                         tokio::spawn(async move { api.send_message(msg, channel_selected).await });
                     }
@@ -70,7 +71,11 @@ fn handle_char(app: &mut App, key: KeyCode) {
     }
 }
 
-pub fn handle_ctrl_backspace(app: &mut App) {
+fn handle_popup_state(app: &mut App) {
+    app.get_screen_mut().toggle_popup();
+}
+
+fn handle_ctrl_backspace(app: &mut App) {
     if let Screen::Chat(ref mut chat) = app.get_screen_mut() {
         // delete last word from field
         let parts: Vec<&str> = chat.input_field.trim().split(' ').collect();

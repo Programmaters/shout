@@ -3,16 +3,18 @@ use crate::screens::ScreenSection;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ProfileScreen {
     pub section: ProfileSection,
+    pub prev_section: ProfileSection,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ProfileSection {
-    Profile,
-    Logout,
+    Settings,
+    Info,
+    Popup,
 }
 
 impl ScreenSection for ProfileSection {
     fn all() -> Vec<Self> {
-        vec![Self::Profile, Self::Logout]
+        vec![Self::Settings, Self::Info]
     }
 }

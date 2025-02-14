@@ -20,33 +20,14 @@ pub struct App {
 }
 
 impl App {
-    pub async fn new() -> Self {
-        let api = Api::new();
-        let logged_user = api.login().await.unwrap();
-        let users = api.get_users().await.unwrap();
-        let channels = api.get_channels().await.unwrap();
-        let chat_screen = Screen::Chat(ChatScreen {
-            section: ChatSection::Messages,
-            channels_index: None,
-            members_index: None,
-            input_field: "".to_string(),
-            scroll_offset: 0,
-            channel_selected: channels[0].id.clone(),
-            channels,
-        });
-        let profile_screen = Screen::Profile(ProfileScreen {
-            section: ProfileSection::Profile,
-        });
-        let friends_screen = Screen::Friends(FriendsScreen {
-            section: FriendsSection::Friends,
-        });
+    pub fn new() -> Self {
         App {
-            api,
+            api: Api::new(),
             running: true,
             screen_index: 1,
-            screens: vec![profile_screen, chat_screen, friends_screen],
-            logged_user,
-            users,
+            screens: Screen::all(),
+            logged_user: None,
+            users: vec![],
         }
     }
 
@@ -54,7 +35,17 @@ impl App {
         render_ui(self, frame);
     }
 
-    pub fn run(&mut self, terminal: &mut DefaultTerminal) -> Result<()> {
+    pub async fn run(&mut self, terminal: &mut DefaultTerminal) -> Result<()> {
+        let logged_user = self.api.login().await.unwrap();
+        let users = self.api.get_users().await.unwrap();
+        let channels = self.api.get_channels().await.unwrap();
+        if let Some(Screen::Chat(ref mut chat)) = self.screens.get_mut(1) {
+            self.logged_user = logged_user.clone();
+            self.users = users;
+            chat.channels = channels.clone();
+            chat.channel_selected = channels.first().map(|c| c.id.clone());
+        }
+
         while self.running {
             terminal.draw(|frame| self.draw(frame))?;
             handle_events(self)?;

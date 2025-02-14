@@ -12,6 +12,8 @@ pub fn render_footer(_app: &App, frame: &mut Frame, area: Rect) {
         Span::styled("Ctrl", footer_span_style()),
         Span::raw("+"),
         Span::styled("←/→", footer_span_style()),
+        Span::raw(" | Toggle Popup: "),
+        Span::styled("Tab", footer_span_style()),
         Span::raw(" | Quit: "),
         Span::styled("Esc", footer_span_style()),
     ]);

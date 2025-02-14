@@ -1,6 +1,7 @@
 pub mod chat;
 pub mod friends;
 pub mod profile;
+
 use crate::screens::chat::{ChatScreen, ChatSection};
 use crate::screens::friends::{FriendsScreen, FriendsSection};
 use crate::screens::profile::{ProfileScreen, ProfileSection};
@@ -14,6 +15,9 @@ pub enum Screen {
 
 impl Screen {
     fn change_section(&mut self, next: bool) {
+        if self.in_popup() {
+            return; // dont change section if in popup
+        }
         match self {
             Screen::Chat(chat) => {
                 chat.section = if next {
@@ -44,22 +48,59 @@ impl Screen {
         self.change_section(true);
     }
 
+    pub fn toggle_popup(&mut self) {
+        match self {
+            Screen::Profile(profile) => {
+                toggle_popup_state(
+                    &mut profile.section,
+                    &mut profile.prev_section,
+                    ProfileSection::Popup,
+                );
+            }
+            Screen::Chat(chat) => {
+                toggle_popup_state(
+                    &mut chat.section,
+                    &mut chat.prev_section,
+                    ChatSection::Popup,
+                );
+            }
+            Screen::Friends(friends) => {
+                toggle_popup_state(
+                    &mut friends.section,
+                    &mut friends.prev_section,
+                    FriendsSection::Popup,
+                );
+            }
+        }
+    }
+
+    pub fn in_popup(&self) -> bool {
+        match self {
+            Screen::Profile(profile) => profile.section == ProfileSection::Popup,
+            Screen::Chat(chat) => chat.section == ChatSection::Popup,
+            Screen::Friends(friends) => friends.section == FriendsSection::Popup,
+        }
+    }
+
     pub fn all() -> Vec<Self> {
         vec![
             Screen::Profile(ProfileScreen {
-                section: ProfileSection::Profile,
+                section: ProfileSection::Settings,
+                prev_section: ProfileSection::Settings,
             }),
             Screen::Chat(ChatScreen {
                 section: ChatSection::Messages,
+                prev_section: ChatSection::Messages,
                 channels_index: None,
                 members_index: None,
                 input_field: "".to_string(),
                 scroll_offset: 0,
-                channel_selected: "".to_string(),
+                channel_selected: None,
                 channels: vec![],
             }),
             Screen::Friends(FriendsScreen {
-                section: FriendsSection::Friends,
+                section: FriendsSection::Messages,
+                prev_section: FriendsSection::Messages,
             }),
         ]
     }
@@ -104,5 +145,16 @@ pub trait ScreenSection: Copy + Sized {
     {
         let index = self.to_index();
         Self::from_index(index.saturating_sub(1))
+    }
+}
+
+fn toggle_popup_state<T: PartialEq + Copy>(section: &mut T, prev_section: &mut T, popup: T) {
+    if *section != popup {
+        // other => popup
+        *prev_section = *section;
+        *section = popup;
+    } else {
+        // popup => other
+        *section = *prev_section;
     }
 }

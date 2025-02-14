@@ -7,16 +7,17 @@ use chrono::Utc;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ChatScreen {
     pub section: ChatSection,
+    pub prev_section: ChatSection,
     pub channels_index: Option<usize>,
     pub members_index: Option<usize>,
     pub input_field: String,
     pub scroll_offset: usize,
-    pub channel_selected: Id,
+    pub channel_selected: Option<Id>,
     pub channels: Vec<Channel>,
 }
 
 impl ChatScreen {
-    pub fn create_message(&mut self, sender: Id) -> Option<Message> {
+    pub fn get_message(&mut self, sender: Id) -> Option<Message> {
         if self.input_field.is_empty() {
             return None;
         }
@@ -26,7 +27,6 @@ impl ChatScreen {
             datetime: Utc::now(),
             content: self.input_field.clone(),
         };
-
         self.get_channel_mut().messages.push(message.clone());
         self.input_field = "".to_string();
         self.scroll_offset = 0;
@@ -37,7 +37,7 @@ impl ChatScreen {
         let channel_id = &self.channel_selected;
         self.channels
             .iter()
-            .find(|c| &c.id == channel_id)
+            .find(|c| Some(&c.id) == channel_id.as_ref())
             .expect("channel not found")
     }
 
@@ -45,13 +45,13 @@ impl ChatScreen {
         let channel_id = &self.channel_selected;
         self.channels
             .iter_mut()
-            .find(|c| &c.id == channel_id)
+            .find(|c| Some(&c.id) == channel_id.as_ref())
             .expect("channel not found")
     }
 
     pub fn select_channel(&mut self) {
         if let Some(index) = self.channels_index {
-            self.channel_selected = self.channels[index].id.clone();
+            self.channel_selected = Some(self.channels[index].id.clone());
             self.members_index = None;
         }
     }
@@ -62,6 +62,7 @@ pub enum ChatSection {
     Channels,
     Messages,
     Members,
+    Popup,
 }
 
 impl ScreenSection for ChatSection {
