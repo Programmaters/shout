@@ -1,5 +1,6 @@
 mod components;
 mod utils;
+mod widgets;
 
 use crate::app::App;
 use crate::screens::Screen;

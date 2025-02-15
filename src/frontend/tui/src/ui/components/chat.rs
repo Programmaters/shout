@@ -3,13 +3,16 @@ use crate::screens::chat::{ChatScreen, ChatSection};
 use crate::ui::utils::datetime::format_datetime;
 use crate::ui::utils::popup::popup_area;
 use crate::ui::utils::select_state::SelectState;
+use crate::ui::widgets::button::Button;
 use color_eyre::owo_colors::OwoColorize;
+use ratatui::buffer::Buffer;
 use ratatui::layout::{Alignment, Constraint, Direction, Layout, Rect};
+use ratatui::prelude::Margin;
 use ratatui::style::{Color, Modifier, Style, Stylize};
 use ratatui::text::{Line, Span, Text};
 use ratatui::widgets::{
-    Block, Borders, Clear, List, ListState, Paragraph, Scrollbar, ScrollbarOrientation,
-    ScrollbarState, Wrap,
+    Block, Borders, Clear, List, ListItem, ListState, Paragraph, Scrollbar, ScrollbarOrientation,
+    ScrollbarState, Widget, Wrap,
 };
 use ratatui::Frame;
 
@@ -125,7 +128,7 @@ fn render_messages(app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) 
     };
     let input_field = Paragraph::new(Span::styled(input_field_content, Style::default())).block(
         Block::default()
-            .borders(Borders::LEFT | Borders::RIGHT | Borders::BOTTOM)
+            .borders(Borders::ALL.difference(Borders::TOP))
             .fg(select_color),
     );
 
@@ -189,10 +192,86 @@ fn render_members(app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) {
 }
 
 fn render_popup(_app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) {
-    if chat.section == ChatSection::Popup {
-        let block = Block::bordered().title("Manage Channel").white();
-        let area = popup_area(area, 50, 70);
-        frame.render_widget(Clear, area);
-        frame.render_widget(block, area);
+    if chat.section != ChatSection::Popup {
+        return;
     }
+    let area = popup_area(area, 50, 70);
+    frame.render_widget(Clear, area); // clear area for popup
+
+    let chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([
+            Constraint::Percentage(50), // members
+            Constraint::Percentage(50), // settings
+        ])
+        .split(area.inner(Margin::new(1, 1)));
+
+    let members_area = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Length(3), // add member
+            Constraint::Min(0),    // members
+        ])
+        .split(chunks[0].inner(Margin::new(1, 1)));
+
+    let settings_area = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Length(3), // update name
+            Constraint::Length(3), // update privacy
+            Constraint::Length(3), // delete channel
+        ])
+        .split(chunks[1].inner(Margin::new(1, 1)));
+
+    let block = Block::bordered()
+        .title("Manage Channel")
+        .title_alignment(Alignment::Center)
+        .white();
+    frame.render_widget(block, area);
+
+    let members_block = Block::default()
+        .title("Members")
+        .title_alignment(Alignment::Center);
+    let mut list_state = ListState::default();
+    let channel_members = chat
+        .get_channel()
+        .members
+        .iter()
+        .map(|m| m.display_name.clone());
+
+    let add_member = Paragraph::new("@...")
+        .centered()
+        .block(Block::bordered().title("Add Member"));
+
+    let members_str = format!("Members ({})", chat.get_channel().members.len());
+    let members_list = List::new(channel_members)
+        .highlight_style(Style::new().bg(Color::White))
+        .block(Block::bordered().title(members_str));
+
+    let settings_block = Block::default()
+        .title("Settings")
+        .title_alignment(Alignment::Center);
+    let update_channel = Paragraph::new("#...")
+        .centered()
+        .block(Block::bordered().title("Channel Name"));
+
+    let update_privacy = Paragraph::new("Public")
+        .centered()
+        .block(Block::bordered().title("Privacy"));
+
+    let delete_channel_button = Button {
+        label: String::from("Delete Channel"),
+        is_pressed: false,
+        style: Style::default(),
+        pressed_style: Some(Style::default().fg(Color::Yellow)),
+    };
+
+    frame.render_widget(members_block, chunks[0]);
+    frame.render_widget(add_member, members_area[0]);
+    frame.render_stateful_widget(members_list, members_area[1], &mut list_state);
+
+    frame.render_widget(settings_block, chunks[1]);
+    frame.render_widget(update_channel, settings_area[0]);
+    frame.render_widget(update_privacy, settings_area[1]);
+    frame.render_widget(delete_channel_button, settings_area[2]);
 }
