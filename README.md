@@ -34,7 +34,7 @@
     - **AuthService** (Kotlin): User authentication & authorization
     - **UserService** (C#): Handles user profile information
     - **FriendService** (Python): Deals with friend requests
-    - **ServerService** (TypeScript): Manages servers and channels metadata
+    - **ChannelService** (TypeScript): Manages channels
     - **MessageService** (Go): Provides WebSocket-based messaging for channels and DMs
     - **PresenceService** (Rust): Tracks user presence and typing indicators using pub/sub
   - **Storage**:

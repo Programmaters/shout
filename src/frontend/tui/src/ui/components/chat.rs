@@ -15,6 +15,9 @@ use ratatui::widgets::{
     ScrollbarState, Widget, Wrap,
 };
 use ratatui::Frame;
+use crate::ui::widgets::input_field::InputField;
+use crate::ui::widgets::radio_button::RadioButton;
+use crate::ui::widgets::radio_selection::RadioSelection;
 
 pub fn render_chat(app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) {
     let chunks = Layout::default()
@@ -121,20 +124,18 @@ fn render_messages(app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) 
         .scroll((first_visible_line, 0))
         .wrap(Wrap { trim: true });
 
-    let input_field_content = if chat.input_field.is_empty() {
-        format!("Message {}", &channel_name)
-    } else {
-        chat.input_field.clone()
-    };
-    let input_field = Paragraph::new(Span::styled(input_field_content, Style::default())).block(
-        Block::default()
+    let chat_field = InputField {
+        value: chat.input_field.clone(),
+        placeholder: Some(format!("Message {}", &channel_name)),
+        style: Default::default(),
+        block: Block::default()
             .borders(Borders::ALL.difference(Borders::TOP))
             .fg(select_color),
-    );
+    };
 
     frame.render_widget(messages, middle_chunk[0]);
     frame.render_stateful_widget(scrollbar, middle_chunk[0], &mut scrollbar_state);
-    frame.render_widget(input_field, middle_chunk[1]);
+    frame.render_widget(chat_field, middle_chunk[1]);
 }
 
 fn render_members(app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) {
@@ -218,7 +219,7 @@ fn render_popup(_app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) {
         .direction(Direction::Vertical)
         .constraints([
             Constraint::Length(3), // update name
-            Constraint::Length(3), // update privacy
+            Constraint::Length(4), // update privacy
             Constraint::Length(3), // delete channel
         ])
         .split(chunks[1].inner(Margin::new(1, 1)));
@@ -229,9 +230,6 @@ fn render_popup(_app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) {
         .white();
     frame.render_widget(block, area);
 
-    let members_block = Block::default()
-        .title("Members")
-        .title_alignment(Alignment::Center);
     let mut list_state = ListState::default();
     let channel_members = chat
         .get_channel()
@@ -239,39 +237,40 @@ fn render_popup(_app: &App, chat: &ChatScreen, frame: &mut Frame, area: Rect) {
         .iter()
         .map(|m| m.display_name.clone());
 
-    let add_member = Paragraph::new("@...")
-        .centered()
-        .block(Block::bordered().title("Add Member"));
+    let add_member_field = InputField {
+        value: format!("@{}", "".to_string()),
+        placeholder: None,
+        style: Default::default(),
+        block: Block::bordered().title("Add Member").title_alignment(Alignment::Left),
+    };
 
     let members_str = format!("Members ({})", chat.get_channel().members.len());
     let members_list = List::new(channel_members)
         .highlight_style(Style::new().bg(Color::White))
         .block(Block::bordered().title(members_str));
 
-    let settings_block = Block::default()
-        .title("Settings")
-        .title_alignment(Alignment::Center);
-    let update_channel = Paragraph::new("#...")
-        .centered()
-        .block(Block::bordered().title("Channel Name"));
+    let update_channel_field = InputField {
+        value: format!("#{}", chat.get_channel().name),
+        placeholder: None,
+        style: Default::default(),
+        block: Block::bordered().title("Channel Name").title_alignment(Alignment::Left),
+    };
 
-    let update_privacy = Paragraph::new("Public")
-        .centered()
-        .block(Block::bordered().title("Privacy"));
+    let privacy_select = RadioSelection {
+        options: vec!["Public", "Private"],
+        selected_index: 0,
+        block: Block::bordered().title("Channel Privacy").title_alignment(Alignment::Left),
+    };
 
     let delete_channel_button = Button {
         label: String::from("Delete Channel"),
         is_pressed: false,
-        style: Style::default(),
-        pressed_style: Some(Style::default().fg(Color::Yellow)),
+        style: Style::default().fg(Color::LightRed),
     };
 
-    frame.render_widget(members_block, chunks[0]);
-    frame.render_widget(add_member, members_area[0]);
+    frame.render_widget(add_member_field, members_area[0]);
     frame.render_stateful_widget(members_list, members_area[1], &mut list_state);
-
-    frame.render_widget(settings_block, chunks[1]);
-    frame.render_widget(update_channel, settings_area[0]);
-    frame.render_widget(update_privacy, settings_area[1]);
+    frame.render_widget(update_channel_field, settings_area[0]);
+    frame.render_widget(privacy_select, settings_area[1]);
     frame.render_widget(delete_channel_button, settings_area[2]);
 }
